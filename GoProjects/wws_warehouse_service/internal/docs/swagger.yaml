@@ -1,0 +1,541 @@
+basePath: /
+definitions:
+  payload.CreateCategoryByVendorIDRequest:
+    properties:
+      description:
+        type: string
+      is_active:
+        type: boolean
+      level:
+        minimum: 0
+        type: integer
+      name:
+        type: string
+      parent_id:
+        minimum: 0
+        type: integer
+    required:
+    - description
+    - is_active
+    - name
+    type: object
+  payload.UpdateCategoryByVendorIDRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    required:
+    - description
+    - name
+    type: object
+  presenter.Attribute:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      value:
+        type: string
+    type: object
+  presenter.AttributeValue:
+    properties:
+      attribute_id:
+        type: integer
+      id:
+        type: integer
+      value:
+        type: string
+    type: object
+  presenter.Brand:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  presenter.Category:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      level:
+        type: integer
+      name:
+        type: string
+      parent_id:
+        type: integer
+      sub_categories:
+        items:
+          $ref: '#/definitions/presenter.Category'
+        type: array
+    type: object
+  presenter.Product:
+    properties:
+      attributes:
+        items:
+          $ref: '#/definitions/presenter.Attribute'
+        type: array
+      brand:
+        allOf:
+        - $ref: '#/definitions/presenter.Brand'
+        description: Related data (using separate presenter types)
+      brand_id:
+        type: integer
+      categories:
+        items:
+          $ref: '#/definitions/presenter.Category'
+        type: array
+      created_at:
+        type: string
+      id:
+        type: integer
+      long_description:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      product_code:
+        type: string
+      quantity:
+        type: integer
+      short_description:
+        type: string
+      tags:
+        items:
+          $ref: '#/definitions/presenter.Tag'
+        type: array
+      updated_at:
+        type: string
+      variations:
+        items:
+          $ref: '#/definitions/presenter.Variation'
+        type: array
+      vendor:
+        $ref: '#/definitions/presenter.Vendor'
+      vendor_id:
+        type: integer
+    type: object
+  presenter.Section:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      name:
+        type: string
+      section_products:
+        items:
+          $ref: '#/definitions/presenter.SectionProduct'
+        type: array
+    type: object
+  presenter.SectionProduct:
+    properties:
+      id:
+        type: integer
+      media_library:
+        $ref: '#/definitions/presenter.SimpleMediaLibrary'
+      order_index:
+        type: integer
+      product:
+        $ref: '#/definitions/presenter.SimpleProduct'
+    type: object
+  presenter.SimpleMediaLibrary:
+    properties:
+      id:
+        type: integer
+      media_type:
+        type: string
+      media_url:
+        type: string
+    type: object
+  presenter.SimpleProduct:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  presenter.Tag:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  presenter.Variation:
+    properties:
+      attributes:
+        items:
+          $ref: '#/definitions/presenter.VariationAttribute'
+        type: array
+      created_at:
+        type: string
+      id:
+        type: integer
+      price:
+        type: number
+      product_id:
+        type: integer
+      quantity:
+        type: integer
+      sku:
+        type: string
+      updated_at:
+        type: string
+      variation_code:
+        type: string
+    type: object
+  presenter.VariationAttribute:
+    properties:
+      attribute_value:
+        $ref: '#/definitions/presenter.AttributeValue'
+      attribute_value_id:
+        type: integer
+      id:
+        type: integer
+      variation_id:
+        type: integer
+    type: object
+  presenter.Vendor:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      vendor_code:
+        type: string
+    type: object
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is the project of product service
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: product service backend
+  version: "1.0"
+paths:
+  /api/v1/admin/vendors/{vendor_id}/categories:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of categories by vendor ID
+      parameters:
+      - description: Vendor ID
+        in: path
+        name: vendor_id
+        required: true
+        type: integer
+      - in: query
+        name: from_date
+        type: string
+      - in: query
+        name: keyword
+        type: string
+      - description: page number
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: number of items per page
+        in: query
+        maximum: 500
+        minimum: 1
+        name: size
+        type: integer
+      - in: query
+        name: sort
+        type: string
+      - in: query
+        name: to_date
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/presenter.Category'
+              type: array
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List categories by vendor ID
+      tags:
+      - categories
+    post:
+      consumes:
+      - application/json
+      description: Create a category by vendor id
+      parameters:
+      - description: Vendor ID
+        in: path
+        name: vendor_id
+        required: true
+        type: integer
+      - description: Create category by vendor id request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/payload.CreateCategoryByVendorIDRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/presenter.Category'
+      security:
+      - BearerAuth: []
+      summary: Create category by vendor id
+      tags:
+      - categories
+  /api/v1/admin/vendors/{vendor_id}/categories/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a category by vendor id
+      parameters:
+      - description: Vendor ID
+        in: path
+        name: vendor_id
+        required: true
+        type: integer
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/presenter.Category'
+      security:
+      - BearerAuth: []
+      summary: Delete category by vendor id
+      tags:
+      - categories
+    put:
+      consumes:
+      - application/json
+      description: Update a category by vendor id
+      parameters:
+      - description: Vendor ID
+        in: path
+        name: vendor_id
+        required: true
+        type: integer
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update category by vendor id request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/payload.UpdateCategoryByVendorIDRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/presenter.Category'
+      security:
+      - BearerAuth: []
+      summary: Update category by vendor id
+      tags:
+      - categories
+  /api/v1/categories:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of categories
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/presenter.Category'
+              type: array
+            type: array
+      summary: List categories
+      tags:
+      - categories
+  /api/v1/products:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of products
+      parameters:
+      - description: |-
+          BrandID is the brand identifier (optional)
+          minimum: 1
+        in: query
+        name: brand_id
+        type: integer
+      - description: |-
+          CategoryID is the category identifier (required)
+          required: true
+          minimum: 1
+        in: query
+        name: category_id
+        required: true
+        type: integer
+      - in: query
+        name: from_date
+        type: string
+      - in: query
+        name: keyword
+        type: string
+      - description: page number
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - collectionFormat: csv
+        description: RangePrice filters products by price range [min,max] (optional)
+        in: query
+        items:
+          type: number
+        name: range_price
+        type: array
+      - description: number of items per page
+        in: query
+        maximum: 500
+        minimum: 1
+        name: size
+        type: integer
+      - in: query
+        name: sort
+        type: string
+      - in: query
+        name: to_date
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/presenter.Product'
+            type: array
+      summary: List products
+      tags:
+      - products
+  /api/v1/products/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a product by id
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/presenter.Product'
+      summary: Get product by id
+      tags:
+      - products
+  /api/v1/products/{id}/variations:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of variants
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/presenter.Variation'
+            type: array
+      summary: List variants
+      tags:
+      - products
+  /api/v1/products/sections/{section_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get all products that belong to a specific section
+      parameters:
+      - description: Section ID
+        in: path
+        name: section_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/presenter.Product'
+            type: array
+      summary: Get products by section ID
+      tags:
+      - products
+  /api/v1/products/sections/active:
+    get:
+      consumes:
+      - application/json
+      description: Get all active sections with their products ordered by order_index
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/presenter.Section'
+            type: array
+      summary: Get active sections with products
+      tags:
+      - products
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

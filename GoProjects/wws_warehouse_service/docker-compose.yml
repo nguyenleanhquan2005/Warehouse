@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  wws-product-service:
+    image: ap-singapore-1.ocir.io/axfnrpyfvlpv/wws_product_service
+    container_name: wws-product-service
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DB_HOST: host.orb.internal

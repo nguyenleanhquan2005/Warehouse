@@ -1,0 +1,55 @@
+services:
+  db:
+    image: mysql:8
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: authdb
+      MYSQL_USER: wws
+      MYSQL_PASSWORD: "wws_password"
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "wws", "-pwws_password"]
+      timeout: 20s
+      retries: 10
+#
+#  auth:
+#    image: "876622472841.dkr.ecr.ap-east-1.amazonaws.com/remy/auth-service"
+#    depends_on:
+#      db:
+#        condition: service_healthy
+#    ports:
+#      - "8081:8080"
+#    environment:
+#      DB_URL: "jdbc:mysql://db:3306/authdb"
+#      DB_USER: wws
+#      DB_PASS: "wws_password#2025"
+#      JWT_SECRET: "your-very-long-jwt-secret-string-2025-your-very-long-jwt-secret-string-2025"
+#      USER_SERVICE_URL: "http://user:8080"
+#
+#  user:
+#    image: "876622472841.dkr.ecr.ap-east-1.amazonaws.com/remy/user-service"
+#    depends_on:
+#      db:
+#        condition: service_healthy
+#      auth:
+#        condition: service_started
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      DB_URL: "jdbc:mysql://db:3306/userdb"
+#      DB_USER: wws
+#      DB_PASS: "wws_password#2025"
+#      JWT_SECRET: "your-very-long-jwt-secret-string-2025-your-very-long-jwt-secret-string-2025"
+#      AUTH_SERVICE_URL: "http://auth:8080"
+
+volumes:
+  db_data:

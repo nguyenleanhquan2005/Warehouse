@@ -1,0 +1,47 @@
+[1mdiff --git a/internal/infrastructure/handler/product_handler.go b/internal/infrastructure/handler/product_handler.go[m
+[1mindex 72ad8aa..9817ae3 100644[m
+[1m--- a/internal/infrastructure/handler/product_handler.go[m
+[1m+++ b/internal/infrastructure/handler/product_handler.go[m
+[36m@@ -14,17 +14,20 @@[m [mtype ProductHandler struct {[m
+ 	productGetUsecase               usecase.ProductGetByIDUsecase[m
+ 	listUsecase                     usecase.ProductListUsecase[m
+ 	getVariationsByProductIDUsecase usecase.ProductGetVariationsByProductIDUsecase[m
+[32m+[m	[32msectionListUsecase              usecase.SectionListUsecase[m
+ }[m
+ [m
+ func NewProductHandler([m
+ 	productGetUsecase usecase.ProductGetByIDUsecase,[m
+ 	listUsecase usecase.ProductListUsecase,[m
+ 	getVariationsByProductIDUsecase usecase.ProductGetVariationsByProductIDUsecase,[m
+[32m+[m	[32msectionListUsecase usecase.SectionListUsecase,[m
+ ) *ProductHandler {[m
+ 	return &ProductHandler{[m
+ 		productGetUsecase:               productGetUsecase,[m
+ 		listUsecase:                     listUsecase,[m
+ 		getVariationsByProductIDUsecase: getVariationsByProductIDUsecase,[m
+[32m+[m		[32msectionListUsecase:              sectionListUsecase,[m
+ 	}[m
+ }[m
+ [m
+[36m@@ -143,3 +146,21 @@[m [mfunc (h *ProductHandler) GetVariantsByProductID(ctx *gin.Context) {[m
+ [m
+ 	presenter.RenderData(ctx, presenter.PresentVariations(productVariants), nil)[m
+ }[m
+[32m+[m
+[32m+[m[32m// GetActiveSections godoc[m
+[32m+[m[32m// @Summary Get active sections with products[m
+[32m+[m[32m// @Description Get all active sections with their products ordered by order_index[m
+[32m+[m[32m// @Tags products[m
+[32m+[m[32m// @Accept json[m
+[32m+[m[32m// @Produce json[m
+[32m+[m[32m// @Success 200 {array} presenter.Section[m
+[32m+[m[32m// @Router /api/v1/products/sections/active [get][m
+[32m+[m[32mfunc (h *ProductHandler) GetActiveSections(ctx *gin.Context) {[m
+[32m+[m	[32msections, err := h.sectionListUsecase.Do(ctx.Request.Context())[m
+[32m+[m	[32mif err != nil {[m
+[32m+[m		[32mpresenter.RenderErrors(ctx, err)[m
+[32m+[m		[32mreturn[m
+[32m+[m	[32m}[m
+[32m+[m
+[32m+[m	[32mpresenter.RenderData(ctx, presenter.PresentSections(sections), nil)[m
+[32m+[m[32m}[m

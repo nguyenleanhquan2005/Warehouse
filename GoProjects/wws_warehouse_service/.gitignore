@@ -1,0 +1,9 @@
+.env
+local.env
+.DS_Store
+.idea/
+vscode/
+vendor/
+
+/config/
+*.md

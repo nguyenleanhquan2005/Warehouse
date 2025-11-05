@@ -1,0 +1,61 @@
+stages:
+  # - debug
+  - build
+  - deploy
+
+variables:
+  AWS_REGION: ap-east-1                   # vùng AWS của bạn
+  ECR_REGISTRY: 876622472841.dkr.ecr.ap-east-1.amazonaws.com
+  IMAGE_NAME: remy/auth-service
+  GIT_STRATEGY: clone # clone/fetch/none
+  GIT_CHECKOUT: "true"
+
+# debug:
+#   stage: debug
+#   tags:
+#     - common
+#   image: docker:25.0.0
+#   services:
+#     - docker:25.0.0-dind
+#   script:
+#     - echo "CI_JOB_TOKEN $CI_JOB_TOKEN"
+
+
+build:
+  stage: build
+  tags:
+    - dockerbuilder
+  image: docker.io/letanthang/aws-dind
+  services:
+    - name: docker:dind
+      alias: docker
+      command: [ "--tls=false" ]
+      variables:
+        HEALTHCHECK_TCP_PORT: "2375"
+
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+    # - git clone https://$DEPLOY_USER:$DEPLOY_TOKEN@gl.owvn.org/remy/auth-service.git #use this for manual clone by Deploy Token
+    
+  script:
+    - docker ps
+    - docker build -t $IMAGE_NAME .
+    - docker tag $IMAGE_NAME:latest $ECR_REGISTRY/$IMAGE_NAME:latest
+    - docker push $ECR_REGISTRY/$IMAGE_NAME:latest
+  only:
+    - main
+
+deploy:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache curl bash
+  script:
+    - echo "Trigger ArgoCD sync..."
+    # - curl -X POST $ARGOCD_WEBHOOK_URL
+  only:
+    - main
